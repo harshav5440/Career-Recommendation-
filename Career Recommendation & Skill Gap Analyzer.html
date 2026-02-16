@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Career Recommendation Engine</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+    margin: 0;
+}
+
+header {
+    background: #020617;
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 18px;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    padding: 14px;
+    border: none;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.card {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.rank {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.bar {
+    height: 12px;
+    background: #c7d2fe;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.fill {
+    height: 100%;
+    background: #4f46e5;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #dcfce7;
+    margin: 5px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>AI Career Recommendation & Skill Gap Analyzer</h1>
+    <p>Explainable Decision Engine | Interview Demonstration</p>
+</header>
+
+<div class="container">
+
+<label>Programming Skill (1–10)</label>
+<input type="number" id="prog" min="1" max="10">
+
+<label>Database / SQL Skill (1–10)</label>
+<input type="number" id="db" min="1" max="10">
+
+<label>Problem Solving / Logic (1–10)</label>
+<input type="number" id="logic" min="1" max="10">
+
+<label>Computer Networks / Security (1–10)</label>
+<input type="number" id="net" min="1" max="10">
+
+<button onclick="runAI()">Run Career AI Analysis</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+function runAI() {
+
+    const skills = {
+        programming: Number(prog.value),
+        database: Number(db.value),
+        logic: Number(logic.value),
+        network: Number(net.value)
+    };
+
+    if (Object.values(skills).some(v => !v || v < 1)) {
+        alert("Please enter all skills between 1 and 10.");
+        return;
+    }
+
+    // Career Intelligence Models
+    const careers = [
+        {
+            name: "Software Engineer",
+            weights: { programming: 0.45, database: 0.2, logic: 0.35, network: 0.0 },
+            roadmap: ["DSA", "Java / Python", "Spring / React"]
+        },
+        {
+            name: "Data Analyst",
+            weights: { programming: 0.25, database: 0.45, logic: 0.3, network: 0.0 },
+            roadmap: ["SQL", "Python", "Statistics", "Power BI"]
+        },
+        {
+            name: "Cybersecurity Analyst",
+            weights: { programming: 0.25, database: 0.15, logic: 0.3, network: 0.3 },
+            roadmap: ["Networking", "Linux", "Ethical Hacking"]
+        }
+    ];
+
+    // Score computation
+    careers.forEach(career => {
+        let score = 0;
+        for (let skill in career.weights) {
+            score += skills[skill] * career.weights[skill];
+        }
+        career.score = (score / 10) * 100;
+    });
+
+    careers.sort((a,b) => b.score - a.score);
+
+    // Gap Analysis
+    const gaps = Object.entries(skills)
+        .filter(([_, v]) => v < 6)
+        .map(([k]) => k.toUpperCase());
+
+    const top = careers[0];
+
+    document.getElementById("result").innerHTML = `
+        <div class="card">
+            <h2>Top Career Recommendation</h2>
+            <p class="rank">${top.name}</p>
+
+            <div class="bar">
+                <div class="fill" style="width:${top.score.toFixed(1)}%"></div>
+            </div>
+            <p><strong>Confidence Score:</strong> ${top.score.toFixed(1)}%</p>
+
+            <h3>Why this Career?</h3>
+            <p>Your strongest skills align closely with the core requirements of this role based on weighted skill evaluation.</p>
+
+            <h3>Skill Gaps Identified</h3>
+            ${gaps.length ? gaps.map(g => `<span class="badge">${g}</span>`).join("") : "No critical gaps"}
+
+            <h3>Recommended Learning Roadmap</h3>
+            <ul>${top.roadmap.map(r => `<li>${r}</li>`).join("")}</ul>
+
+            <h3>Other Suitable Career Options</h3>
+            <ul>
+                ${careers.slice(1).map(c => `<li>${c.name} (${c.score.toFixed(1)}%)</li>`).join("")}
+            </ul>
+        </div>
+    `;
+}
+</script>
+
+</body>
+</html>
